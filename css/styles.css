@@ -66,12 +66,43 @@ body {
   overflow: hidden;
 }
 
-#radarCanvas {
+.radar {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 600px;
+  height: 600px;
+  transform: translate(-50%, -50%);
+}
+
+.radar-circle {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  opacity: 0.6;
+  border-radius: 50%;
+  border: 1px solid rgba(79,172,254,0.12);
+}
+
+.rc1 { width: 150px; height: 150px; }
+.rc2 { width: 300px; height: 300px; }
+.rc3 { width: 450px; height: 450px; }
+.rc4 { width: 600px; height: 600px; }
+
+.radar-line {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300px;
+  height: 1px;
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, rgba(79,172,254,0.8), transparent);
+  animation: radarSpin 4s linear infinite;
+}
+
+@keyframes radarSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 .grid-overlay {
   position: absolute;
