@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>ENAIRE Study</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- LOGIN SCREEN -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-bg">
+      <div class="radar-ring r1"></div>
+      <div class="radar-ring r2"></div>
+      <div class="radar-ring r3"></div>
+      <div class="radar-sweep"></div>
+      <div class="grid-overlay"></div>
+    </div>
+    <div class="login-content">
+      <div class="login-logo">
+        <div class="logo-mark">✈</div>
+        <div class="logo-text">
+          <span class="logo-main">ENAIRE</span>
+          <span class="logo-sub">STUDY SYSTEM v1.0</span>
+        </div>
+      </div>
+      <div class="login-card">
+        <div class="login-card-header">
+          <span class="status-dot"></span>
+          <span class="mono">SISTEMA LISTO — IDENTIFICACIÓN REQUERIDA</span>
+        </div>
+        <p class="login-desc">Accede con tu cuenta Google para sincronizar tu progreso entre todos tus dispositivos.</p>
+        <button id="loginBtn" class="btn-google">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Acceder con Google
+        </button>
+      </div>
+      <div class="login-footer mono">ENAIRE OPOSICIONES · SISTEMA DE REPASO ESPACIADO</div>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="app" class="app hidden">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-logo">
+          <span class="logo-mark-sm">✈</span>
+          <span class="mono topbar-title">ENAIRE STUDY</span>
+        </div>
+      </div>
+      <div class="topbar-center">
+        <nav class="main-nav">
+          <button class="nav-btn active" data-view="dashboard">
+            <span class="nav-icon">⊞</span>
+            <span>Dashboard</span>
+          </button>
+          <button class="nav-btn" data-view="study">
+            <span class="nav-icon">◈</span>
+            <span>Estudiar</span>
+          </button>
+          <button class="nav-btn" data-view="generate">
+            <span class="nav-icon">⊕</span>
+            <span>Generar</span>
+          </button>
+        </nav>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-stats">
+          <div class="stat-item">
+            <span class="stat-val mono" id="statToday">0</span>
+            <span class="stat-label">hoy</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-val mono" id="statStreak">0</span>
+            <span class="stat-label">racha</span>
+          </div>
+        </div>
+        <button class="user-btn" id="userBtn">
+          <img id="userAvatar" src="" alt="" />
+        </button>
+      </div>
+    </header>
+
+    <!-- BOTTOM NAV (mobile) -->
+    <nav class="bottom-nav">
+      <button class="bnav-btn active" data-view="dashboard">
+        <span class="bnav-icon">⊞</span>
+        <span>Dashboard</span>
+      </button>
+      <button class="bnav-btn" data-view="study">
+        <span class="bnav-icon">◈</span>
+        <span>Estudiar</span>
+      </button>
+      <button class="bnav-btn" data-view="generate">
+        <span class="bnav-icon">⊕</span>
+        <span>Generar</span>
+      </button>
+    </nav>
+
+    <!-- VIEWS -->
+    <main class="main-content">
+
+      <!-- ═══════════════════════════════════════════════
+           DASHBOARD
+      ════════════════════════════════════════════════ -->
+      <section class="view active" id="view-dashboard">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Estado de preparación</h1>
+            <p class="view-subtitle mono" id="dashDate">—</p>
+          </div>
+          <div class="overall-score">
+            <div class="score-ring">
+              <svg viewBox="0 0 60 60">
+                <circle cx="30" cy="30" r="24" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="4"/>
+                <circle cx="30" cy="30" r="24" fill="none" stroke="var(--accent)" stroke-width="4"
+                  stroke-dasharray="150.8" stroke-dashoffset="150.8"
+                  stroke-linecap="round" transform="rotate(-90 30 30)"
+                  id="scoreCircle"/>
+              </svg>
+              <span class="score-num mono" id="scoreNum">—</span>
+            </div>
+            <span class="score-label mono">GLOBAL</span>
+          </div>
+        </div>
+
+        <div class="blocks-grid" id="blocksGrid">
+          <!-- Generated by JS -->
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════
+           STUDY
+      ════════════════════════════════════════════════ -->
+      <section class="view" id="view-study">
+
+        <!-- Block filter -->
+        <div class="study-filters" id="studyFilters">
+          <button class="filter-chip active" data-block="all">Todos</button>
+          <!-- More chips added by JS -->
+        </div>
+
+        <!-- Progress -->
+        <div class="study-progress">
+          <div class="progress-track">
+            <div class="progress-fill" id="studyProgress"></div>
+          </div>
+          <span class="mono progress-label" id="progressLabel">0 / 0</span>
+        </div>
+
+        <!-- Card area -->
+        <div class="card-area" id="cardArea">
+
+          <!-- Flashcard -->
+          <div class="flashcard-wrap" id="flashcardWrap">
+            <div class="flashcard" id="flashcard" onclick="flipCard()">
+              <div class="card-face card-front">
+                <div class="card-block-tag mono" id="cardBlockTag">—</div>
+                <div class="card-content" id="cardQuestion">Carga o genera tarjetas para empezar</div>
+                <div class="card-tap-hint mono">↓ toca para ver respuesta</div>
+              </div>
+              <div class="card-face card-back">
+                <div class="card-block-tag mono" id="cardBlockTagBack">—</div>
+                <div class="card-content" id="cardAnswer">—</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Done state -->
+          <div class="done-state hidden" id="doneState">
+            <div class="done-icon">◉</div>
+            <div class="done-title">Sesión completada</div>
+            <div class="done-stats mono" id="doneStats">0 tarjetas repasadas</div>
+            <button class="btn-primary" onclick="resetStudySession()">Repasar de nuevo</button>
+          </div>
+
+        </div>
+
+        <!-- Rating buttons -->
+        <div class="rating-row hidden" id="ratingRow">
+          <button class="rate-btn rate-again" onclick="rateCard(0)">
+            <span class="rate-label">Otra vez</span>
+            <span class="rate-sub mono">&lt;1 min</span>
+          </button>
+          <button class="rate-btn rate-hard" onclick="rateCard(1)">
+            <span class="rate-label">Difícil</span>
+            <span class="rate-sub mono">~1 día</span>
+          </button>
+          <button class="rate-btn rate-good" onclick="rateCard(2)">
+            <span class="rate-label">Bien</span>
+            <span class="rate-sub mono">~3 días</span>
+          </button>
+          <button class="rate-btn rate-easy" onclick="rateCard(3)">
+            <span class="rate-label">Fácil</span>
+            <span class="rate-sub mono">~7 días</span>
+          </button>
+        </div>
+
+        <p class="tap-hint-outside mono hidden" id="tapHintOutside">toca la tarjeta para revelar la respuesta</p>
+
+      </section>
+
+      <!-- ═══════════════════════════════════════════════
+           GENERATE
+      ════════════════════════════════════════════════ -->
+      <section class="view" id="view-generate">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Generar tarjetas</h1>
+            <p class="view-subtitle">Pega tus apuntes y la IA creará las flashcards automáticamente</p>
+          </div>
+        </div>
+
+        <div class="gen-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label mono">Bloque</label>
+              <select class="form-select" id="genBlock">
+                <option value="English Precision">English Precision</option>
+                <option value="English Speaking">English Speaking</option>
+                <option value="Psicotécnicos">Psicotécnicos</option>
+                <option value="Syllabus">Syllabus</option>
+                <option value="FEAST">FEAST</option>
+                <option value="Profile">Profile</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label mono">Nº de tarjetas</label>
+              <input type="number" class="form-input" id="genCount" value="10" min="3" max="30" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label mono">Apuntes</label>
+            <textarea class="form-textarea" id="genNotes" placeholder="Pega aquí el texto de tus apuntes o notas de sesión..."></textarea>
+          </div>
+          <button class="btn-primary btn-generate" id="genBtn" onclick="generateCards()">
+            <span id="genBtnText">✦ Generar tarjetas</span>
+          </button>
+          <div class="gen-status hidden" id="genStatus"></div>
+        </div>
+
+        <!-- Preview -->
+        <div class="gen-preview hidden" id="genPreview">
+          <div class="preview-header">
+            <span class="preview-title">Vista previa</span>
+            <span class="mono preview-count" id="previewCount">0 tarjetas</span>
+          </div>
+          <div class="preview-list" id="previewList"></div>
+          <div class="preview-actions">
+            <button class="btn-primary" onclick="saveGeneratedCards()">💾 Guardar en bloque</button>
+            <button class="btn-ghost" onclick="discardGenerated()">Descartar</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- USER MENU -->
+  <div class="user-menu hidden" id="userMenu">
+    <div class="user-menu-name" id="userMenuName">—</div>
+    <div class="user-menu-email mono" id="userMenuEmail">—</div>
+    <hr class="menu-divider"/>
+    <button onclick="signOut()" class="menu-item">Cerrar sesión</button>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast hidden" id="toast"></div>
+
+  <!-- SRS Algorithm -->
+  <script src="js/srs.js"></script>
+  <!-- App (ES Module) -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
