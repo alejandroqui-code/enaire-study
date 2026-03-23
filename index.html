@@ -277,6 +277,7 @@
   <script type="module" src="js/app.js"></script>
 
   <script>
+window.addEventListener('load', () => {
 const canvas = document.getElementById('radarCanvas');
 if (canvas) {
   const ctx = canvas.getContext('2d');
@@ -341,6 +342,7 @@ if (canvas) {
   }
   draw();
 }
+}); // <- añadir esto
 </script>
 </body>
 </html>
