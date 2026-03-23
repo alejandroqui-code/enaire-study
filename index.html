@@ -284,6 +284,10 @@ if (canvas) {
   const SIZE = Math.min(window.innerWidth, window.innerHeight) * 0.75;
   canvas.width = SIZE;
   canvas.height = SIZE;
+  canvas.style.position = 'absolute';
+  canvas.style.left = (window.innerWidth / 2 - SIZE / 2) + 'px';
+  canvas.style.top = (window.innerHeight / 2 - SIZE / 2) + 'px';
+  canvas.style.transform = 'none';
   const cx = SIZE / 2, cy = SIZE / 2, R = SIZE / 2 - 2;
   let angle = -Math.PI / 2;
   const TRAIL = 80;
