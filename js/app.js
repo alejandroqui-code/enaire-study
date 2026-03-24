@@ -45,6 +45,7 @@ onAuthChange(async (user) => {
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
     document.getElementById('userAvatar').src = user.photoURL || '';
+    await ensureUserDocument(user);
     await loadUserData();
     renderDashboard();
     initStudySession();
@@ -69,6 +70,24 @@ window.signOut = async function() {
   await fbSignOut();
   hideUserMenu();
 };
+
+// ── ENSURE USER DOCUMENT ─────────────────────────────────────
+async function ensureUserDocument(user) {
+  try {
+    await import('./firebase.js').then(async (fb) => {
+      const { db } = fb;
+      const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+      const userRef = doc(db, 'users', user.uid);
+      await setDoc(userRef, {
+        email: user.email,
+        displayName: user.displayName,
+        createdAt: new Date().toISOString()
+      }, { merge: true });
+    });
+  } catch(e) {
+    console.error('Error creating user document:', e);
+  }
+}
 
 // ── DATA LOADING ──────────────────────────────────────────────
 async function loadUserData() {
