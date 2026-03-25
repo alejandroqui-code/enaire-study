@@ -17,7 +17,7 @@ import {
 const BLOCKS = [
   "English Precision",
   "English Speaking",
-  "Psicotécnicos",
+  "Psychotechnics",
   "Syllabus",
   "FEAST",
   "Profile"
