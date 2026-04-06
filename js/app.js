@@ -513,12 +513,12 @@ window.saveCardEdit = async function() {
 };
 
 // ── STUDY — edit / delete current card ───────────────────────
-window.editCurrentCard = function() {
+document.getElementById('btnEditCard').addEventListener('click', () => {
   const card = state.study.queue[state.study.currentIdx];
   if (card) openEditModal(card);
-};
+});
 
-window.deleteCurrentCard = function() {
+document.getElementById('btnDeleteCard').addEventListener('click', () => {
   const card = state.study.queue[state.study.currentIdx];
   if (!card) return;
   showConfirm('¿Eliminar esta tarjeta? Esta acción no se puede deshacer.', async () => {
@@ -526,7 +526,7 @@ window.deleteCurrentCard = function() {
     await removeCard(card.id);
     showCurrentCard();
   });
-};
+});
 
 // ── MANAGE VIEW ───────────────────────────────────────────────
 let manageActiveBlock = 'all';
