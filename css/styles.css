@@ -1214,3 +1214,264 @@ body {
   text-align: center; padding: 3rem 1rem;
   color: rgba(255,255,255,.3); font-size: .9rem;
 }
+/* ═══════════════════════════════════════════════════════════
+   AÑADIR AL FINAL DE styles.css
+════════════════════════════════════════════════════════════ */
+
+/* ── CARD ACTION BUTTONS (encima de la flashcard) ─────────── */
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.card-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.45);
+  font-family: inherit;
+  font-size: .78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .18s ease;
+  letter-spacing: .02em;
+}
+
+.card-action-btn svg {
+  flex-shrink: 0;
+  opacity: .8;
+}
+
+.card-action-edit:hover {
+  background: rgba(56,189,248,0.12);
+  border-color: rgba(56,189,248,0.3);
+  color: #38bdf8;
+}
+
+.card-action-delete:hover {
+  background: rgba(239,68,68,0.12);
+  border-color: rgba(239,68,68,0.3);
+  color: #f87171;
+}
+
+/* ── MODALS (compartido entre edit y confirm) ─────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: fadeIn .15s ease;
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal {
+  background: #161b27;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  animation: slideUp .18s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.modal-header {
+  font-size: .72rem;
+  letter-spacing: .12em;
+  color: var(--accent, #38bdf8);
+  padding-bottom: .75rem;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.modal-actions {
+  display: flex;
+  gap: .75rem;
+  justify-content: flex-end;
+  padding-top: .25rem;
+}
+
+/* ── CONFIRM MODAL específico ─────────────────────────────── */
+.modal-confirm {
+  max-width: 380px;
+  text-align: center;
+  align-items: center;
+}
+
+.confirm-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(239,68,68,0.12);
+  border: 1px solid rgba(239,68,68,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f87171;
+  margin-bottom: .25rem;
+}
+
+.confirm-message {
+  font-size: .95rem;
+  font-weight: 500;
+  color: rgba(255,255,255,.9);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.confirm-sub {
+  font-size: .8rem;
+  color: rgba(255,255,255,.35);
+  margin: 0;
+}
+
+.modal-confirm .modal-actions {
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ── BTN DANGER ───────────────────────────────────────────── */
+.btn-danger {
+  padding: .55rem 1.25rem;
+  border-radius: 8px;
+  border: none;
+  background: #dc2626;
+  color: #fff;
+  font-family: inherit;
+  font-size: .875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .18s;
+}
+
+.btn-danger:hover {
+  background: #ef4444;
+}
+
+/* ── MANAGE VIEW ──────────────────────────────────────────── */
+.manage-list {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  margin-top: 1rem;
+  padding-bottom: 2rem;
+}
+
+.manage-item {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 1rem 1rem 1rem 1.1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  transition: border-color .15s;
+}
+
+.manage-item:hover {
+  border-color: rgba(255,255,255,0.13);
+}
+
+.manage-item-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  min-width: 0;
+}
+
+.manage-item-block {
+  font-size: .68rem;
+  letter-spacing: .1em;
+  color: var(--accent, #38bdf8);
+  opacity: .7;
+}
+
+.manage-item-q {
+  font-size: .88rem;
+  font-weight: 500;
+  color: rgba(255,255,255,.88);
+  line-height: 1.4;
+}
+
+.manage-item-a {
+  font-size: .82rem;
+  color: rgba(255,255,255,.42);
+  line-height: 1.4;
+}
+
+.manage-item-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.manage-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.09);
+  background: transparent;
+  font-family: inherit;
+  font-size: .75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+
+.manage-btn-edit {
+  color: rgba(255,255,255,.45);
+}
+
+.manage-btn-edit:hover {
+  background: rgba(56,189,248,0.1);
+  border-color: rgba(56,189,248,0.25);
+  color: #38bdf8;
+}
+
+.manage-btn-delete {
+  color: rgba(255,255,255,.35);
+}
+
+.manage-btn-delete:hover {
+  background: rgba(239,68,68,0.1);
+  border-color: rgba(239,68,68,0.25);
+  color: #f87171;
+}
+
+.manage-empty {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: rgba(255,255,255,.25);
+  font-size: .9rem;
+}

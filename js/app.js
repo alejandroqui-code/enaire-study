@@ -126,6 +126,7 @@ function switchView(name) {
   if (name === 'study')     initStudySession();
   if (name === 'dashboard') renderDashboard();
   if (name === 'manage')    renderManageView();
+}
 
 // ── DASHBOARD ─────────────────────────────────────────────────
 function renderDashboard() {
@@ -253,10 +254,12 @@ function showCurrentCard() {
   const flashWrap = document.getElementById('flashcardWrap');
   const doneState = document.getElementById('doneState');
   const tapHint   = document.getElementById('tapHintOutside');
+  const cardActions = document.getElementById('cardActions');
 
   if (currentIdx >= queue.length) {
     flashWrap.classList.add('hidden');
     tapHint.classList.add('hidden');
+    if (cardActions) cardActions.classList.add('hidden');
     doneState.classList.remove('hidden');
     document.getElementById('doneStats').textContent = `${reviewed} tarjetas repasadas`;
     return;
@@ -265,6 +268,7 @@ function showCurrentCard() {
   flashWrap.classList.remove('hidden');
   doneState.classList.add('hidden');
   tapHint.classList.remove('hidden');
+  if (cardActions) cardActions.classList.remove('hidden');
 
   const card = queue[currentIdx];
   document.getElementById('cardQuestion').textContent     = card.question;
@@ -426,24 +430,45 @@ function updateStats() {
   document.getElementById('statStreak').textContent = state.meta.streak || 0;
 }
 
+// ── HELPERS ───────────────────────────────────────────────────
+function getToday()     { return new Date().toISOString().slice(0, 10); }
+function getYesterday() { const d = new Date(); d.setDate(d.getDate()-1); return d.toISOString().slice(0,10); }
 
-// ── EDIT / DELETE ──────────────────────────────────────────────
+function showStatus(el, msg, type) {
+  el.textContent = msg;
+  el.className = 'gen-status ' + type;
+  el.classList.remove('hidden');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.remove('hidden');
+  t.classList.add('show');
+  setTimeout(() => { t.classList.remove('show'); t.classList.add('hidden'); }, 3000);
+}
+
+// ── CONFIRM MODAL ─────────────────────────────────────────────
+let confirmCallback = null;
+
+function showConfirm(message, onConfirm) {
+  confirmCallback = onConfirm;
+  document.getElementById('confirmMessage').textContent = message;
+  document.getElementById('confirmModal').classList.remove('hidden');
+}
+
+window.confirmYes = function() {
+  document.getElementById('confirmModal').classList.add('hidden');
+  if (confirmCallback) { confirmCallback(); confirmCallback = null; }
+};
+
+window.confirmNo = function() {
+  document.getElementById('confirmModal').classList.add('hidden');
+  confirmCallback = null;
+};
+
+// ── EDIT MODAL ────────────────────────────────────────────────
 let editingCardId = null;
-let manageActiveBlock = 'all';
-
-window.editCurrentCard = function() {
-  const card = state.study.queue[state.study.currentIdx];
-  if (card) openEditModal(card);
-};
-
-window.deleteCurrentCard = async function() {
-  const card = state.study.queue[state.study.currentIdx];
-  if (!card) return;
-  if (!confirm('¿Eliminar esta tarjeta?')) return;
-  state.study.queue.splice(state.study.currentIdx, 1);
-  await removeCard(card.id);
-  showCurrentCard();
-};
 
 function openEditModal(card) {
   editingCardId = card.id;
@@ -461,11 +486,16 @@ window.saveCardEdit = async function() {
   if (!editingCardId) return;
   const question = document.getElementById('editQuestion').value.trim();
   const answer   = document.getElementById('editAnswer').value.trim();
-  if (!question || !answer) { showToast('✗ Pregunta y respuesta no pueden estar vacías'); return; }
+  if (!question || !answer) {
+    showToast('✗ Pregunta y respuesta no pueden estar vacías');
+    return;
+  }
 
+  // Update in state
   const idx = state.cards.findIndex(c => c.id === editingCardId);
   if (idx !== -1) { state.cards[idx].question = question; state.cards[idx].answer = answer; }
 
+  // Update in study queue if active
   const qi = state.study.queue.findIndex(c => c.id === editingCardId);
   if (qi !== -1) { state.study.queue[qi].question = question; state.study.queue[qi].answer = answer; }
 
@@ -473,7 +503,8 @@ window.saveCardEdit = async function() {
     await updateCard(state.user.uid, editingCardId, { question, answer });
     showToast('✓ Tarjeta actualizada');
   } catch(e) {
-    showToast('✗ Error al guardar'); console.error(e);
+    showToast('✗ Error al guardar');
+    console.error(e);
   }
 
   closeEditModal();
@@ -481,50 +512,84 @@ window.saveCardEdit = async function() {
   if (document.getElementById('view-manage').classList.contains('active')) renderManageView();
 };
 
-async function removeCard(cardId) {
-  state.cards = state.cards.filter(c => c.id !== cardId);
-  try {
-    await fbDeleteCard(state.user.uid, cardId);
-    showToast('✓ Tarjeta eliminada');
-  } catch(e) {
-    showToast('✗ Error al eliminar'); console.error(e);
-  }
-  renderDashboard();
-}
+// ── STUDY — edit / delete current card ───────────────────────
+window.editCurrentCard = function() {
+  const card = state.study.queue[state.study.currentIdx];
+  if (card) openEditModal(card);
+};
 
-// ── MANAGE VIEW ────────────────────────────────────────────────
+window.deleteCurrentCard = function() {
+  const card = state.study.queue[state.study.currentIdx];
+  if (!card) return;
+  showConfirm('¿Eliminar esta tarjeta? Esta acción no se puede deshacer.', async () => {
+    state.study.queue.splice(state.study.currentIdx, 1);
+    await removeCard(card.id);
+    showCurrentCard();
+  });
+};
+
+// ── MANAGE VIEW ───────────────────────────────────────────────
+let manageActiveBlock = 'all';
+
 function renderManageView() {
   let cards = state.cards;
   if (manageActiveBlock !== 'all') cards = cards.filter(c => c.block === manageActiveBlock);
-  document.getElementById('manageCount').textContent = `${cards.length} tarjetas`;
 
+  document.getElementById('manageCount').textContent = `${cards.length} tarjeta${cards.length !== 1 ? 's' : ''}`;
+
+  // Filters
   const filtersEl = document.getElementById('manageFilters');
-  filtersEl.innerHTML = `<button class="filter-chip ${manageActiveBlock === 'all' ? 'active' : ''}" data-block="all">Todos</button>`;
+  filtersEl.innerHTML = `<button class="filter-chip ${manageActiveBlock === 'all' ? 'active' : ''}" data-block="all">Todos (${state.cards.length})</button>`;
   BLOCKS.forEach(b => {
     const n = state.cards.filter(c => c.block === b).length;
-    if (n > 0) filtersEl.innerHTML += `<button class="filter-chip ${manageActiveBlock === b ? 'active' : ''}" data-block="${b}">${b} <span class="mono" style="opacity:.5;font-size:.8em">(${n})</span></button>`;
+    if (n > 0) {
+      filtersEl.innerHTML += `<button class="filter-chip ${manageActiveBlock === b ? 'active' : ''}" data-block="${b}">${b} <span class="mono" style="opacity:.5;font-size:.8em">(${n})</span></button>`;
+    }
   });
   filtersEl.querySelectorAll('.filter-chip').forEach(chip =>
-    chip.addEventListener('click', () => { manageActiveBlock = chip.dataset.block; renderManageView(); })
+    chip.addEventListener('click', () => {
+      manageActiveBlock = chip.dataset.block;
+      renderManageView();
+    })
   );
 
+  // List
   const listEl = document.getElementById('manageList');
   if (cards.length === 0) {
     listEl.innerHTML = `<div class="manage-empty">No hay tarjetas en este bloque.</div>`;
     return;
   }
   listEl.innerHTML = cards.map(c => `
-    <div class="manage-item">
+    <div class="manage-item" data-id="${c.id}">
       <div class="manage-item-content">
         <div class="manage-item-block mono">${c.block}</div>
         <div class="manage-item-q">${c.question}</div>
         <div class="manage-item-a">${c.answer}</div>
       </div>
       <div class="manage-item-actions">
-        <button class="card-action-btn" onclick="editCardById('${c.id}')" title="Editar">✎</button>
-        <button class="card-action-btn card-action-delete" onclick="deleteCardById('${c.id}')" title="Eliminar">✕</button>
+        <button class="manage-btn manage-btn-edit" data-id="${c.id}" title="Editar">✎ Editar</button>
+        <button class="manage-btn manage-btn-delete" data-id="${c.id}" title="Eliminar">✕ Eliminar</button>
       </div>
     </div>`).join('');
+
+  // Attach events after render
+  listEl.querySelectorAll('.manage-btn-edit').forEach(btn =>
+    btn.addEventListener('click', () => {
+      const card = state.cards.find(c => c.id === btn.dataset.id);
+      if (card) openEditModal(card);
+    })
+  );
+  listEl.querySelectorAll('.manage-btn-delete').forEach(btn =>
+    btn.addEventListener('click', () => {
+      const cardId = btn.dataset.id;
+      const card = state.cards.find(c => c.id === cardId);
+      const preview = card ? `"${card.question.slice(0, 60)}${card.question.length > 60 ? '…' : ''}"` : 'esta tarjeta';
+      showConfirm(`¿Eliminar ${preview}?`, async () => {
+        await removeCard(cardId);
+        renderManageView();
+      });
+    })
+  );
 }
 
 window.editCardById = function(cardId) {
@@ -532,26 +597,15 @@ window.editCardById = function(cardId) {
   if (card) openEditModal(card);
 };
 
-window.deleteCardById = async function(cardId) {
-  if (!confirm('¿Eliminar esta tarjeta?')) return;
-  await removeCard(cardId);
-  renderManageView();
-};
-
-
-// ── HELPERS ───────────────────────────────────────────────────
-function getToday()     { return new Date().toISOString().slice(0, 10); }
-function getYesterday() { const d = new Date(); d.setDate(d.getDate()-1); return d.toISOString().slice(0,10); }
-
-function showStatus(el, msg, type) {
-  el.textContent = msg;
-  el.className = 'gen-status ' + type;
-  el.classList.remove('hidden');
-}
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
+// ── REMOVE CARD (shared) ──────────────────────────────────────
+async function removeCard(cardId) {
+  state.cards = state.cards.filter(c => c.id !== cardId);
+  try {
+    await fbDeleteCard(state.user.uid, cardId);
+    showToast('✓ Tarjeta eliminada');
+  } catch(e) {
+    showToast('✗ Error al eliminar');
+    console.error(e);
+  }
+  renderDashboard();
 }
