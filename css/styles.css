@@ -1124,29 +1124,6 @@ body {
 }
 
 
-/* ── CARD ACTION BUTTONS (edit/delete on flashcard) ─────────── */
-.card-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 6px;
-  margin-bottom: 8px;
-}
-
-.card-action-btn {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.5);
-  border-radius: 6px;
-  width: 32px;
-  height: 32px;
-  font-size: .95rem;
-  cursor: pointer;
-  transition: all .2s;
-  display: flex; align-items: center; justify-content: center;
-}
-.card-action-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
-.card-action-delete:hover { background: rgba(220,50,50,0.2); border-color: rgba(220,50,50,0.4); color: #f87171; }
-
 /* ── EDIT MODAL ──────────────────────────────────────────────── */
 .modal-overlay {
   position: fixed; inset: 0;
@@ -1214,10 +1191,6 @@ body {
   text-align: center; padding: 3rem 1rem;
   color: rgba(255,255,255,.3); font-size: .9rem;
 }
-/* ═══════════════════════════════════════════════════════════
-   AÑADIR AL FINAL DE styles.css
-════════════════════════════════════════════════════════════ */
-
 /* ── CARD ACTION BUTTONS (encima de la flashcard) ─────────── */
 .card-actions {
   display: flex;
