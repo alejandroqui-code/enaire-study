@@ -11,6 +11,7 @@ import {
   loadMeta,
   saveCards as fbSaveCards,
   updateCard,
+  deleteCard as fbDeleteCard,
   saveMeta
 } from './firebase.js';
 
@@ -124,7 +125,7 @@ function switchView(name) {
   document.getElementById('view-' + name).classList.add('active');
   if (name === 'study')     initStudySession();
   if (name === 'dashboard') renderDashboard();
-}
+  if (name === 'manage')    renderManageView();
 
 // ── DASHBOARD ─────────────────────────────────────────────────
 function renderDashboard() {
@@ -424,6 +425,119 @@ function updateStats() {
   document.getElementById('statToday').textContent  = state.meta.todayCount || 0;
   document.getElementById('statStreak').textContent = state.meta.streak || 0;
 }
+
+
+// ── EDIT / DELETE ──────────────────────────────────────────────
+let editingCardId = null;
+let manageActiveBlock = 'all';
+
+window.editCurrentCard = function() {
+  const card = state.study.queue[state.study.currentIdx];
+  if (card) openEditModal(card);
+};
+
+window.deleteCurrentCard = async function() {
+  const card = state.study.queue[state.study.currentIdx];
+  if (!card) return;
+  if (!confirm('¿Eliminar esta tarjeta?')) return;
+  state.study.queue.splice(state.study.currentIdx, 1);
+  await removeCard(card.id);
+  showCurrentCard();
+};
+
+function openEditModal(card) {
+  editingCardId = card.id;
+  document.getElementById('editQuestion').value = card.question;
+  document.getElementById('editAnswer').value   = card.answer;
+  document.getElementById('editModal').classList.remove('hidden');
+}
+
+window.closeEditModal = function() {
+  document.getElementById('editModal').classList.add('hidden');
+  editingCardId = null;
+};
+
+window.saveCardEdit = async function() {
+  if (!editingCardId) return;
+  const question = document.getElementById('editQuestion').value.trim();
+  const answer   = document.getElementById('editAnswer').value.trim();
+  if (!question || !answer) { showToast('✗ Pregunta y respuesta no pueden estar vacías'); return; }
+
+  const idx = state.cards.findIndex(c => c.id === editingCardId);
+  if (idx !== -1) { state.cards[idx].question = question; state.cards[idx].answer = answer; }
+
+  const qi = state.study.queue.findIndex(c => c.id === editingCardId);
+  if (qi !== -1) { state.study.queue[qi].question = question; state.study.queue[qi].answer = answer; }
+
+  try {
+    await updateCard(state.user.uid, editingCardId, { question, answer });
+    showToast('✓ Tarjeta actualizada');
+  } catch(e) {
+    showToast('✗ Error al guardar'); console.error(e);
+  }
+
+  closeEditModal();
+  showCurrentCard();
+  if (document.getElementById('view-manage').classList.contains('active')) renderManageView();
+};
+
+async function removeCard(cardId) {
+  state.cards = state.cards.filter(c => c.id !== cardId);
+  try {
+    await fbDeleteCard(state.user.uid, cardId);
+    showToast('✓ Tarjeta eliminada');
+  } catch(e) {
+    showToast('✗ Error al eliminar'); console.error(e);
+  }
+  renderDashboard();
+}
+
+// ── MANAGE VIEW ────────────────────────────────────────────────
+function renderManageView() {
+  let cards = state.cards;
+  if (manageActiveBlock !== 'all') cards = cards.filter(c => c.block === manageActiveBlock);
+  document.getElementById('manageCount').textContent = `${cards.length} tarjetas`;
+
+  const filtersEl = document.getElementById('manageFilters');
+  filtersEl.innerHTML = `<button class="filter-chip ${manageActiveBlock === 'all' ? 'active' : ''}" data-block="all">Todos</button>`;
+  BLOCKS.forEach(b => {
+    const n = state.cards.filter(c => c.block === b).length;
+    if (n > 0) filtersEl.innerHTML += `<button class="filter-chip ${manageActiveBlock === b ? 'active' : ''}" data-block="${b}">${b} <span class="mono" style="opacity:.5;font-size:.8em">(${n})</span></button>`;
+  });
+  filtersEl.querySelectorAll('.filter-chip').forEach(chip =>
+    chip.addEventListener('click', () => { manageActiveBlock = chip.dataset.block; renderManageView(); })
+  );
+
+  const listEl = document.getElementById('manageList');
+  if (cards.length === 0) {
+    listEl.innerHTML = `<div class="manage-empty">No hay tarjetas en este bloque.</div>`;
+    return;
+  }
+  listEl.innerHTML = cards.map(c => `
+    <div class="manage-item">
+      <div class="manage-item-content">
+        <div class="manage-item-block mono">${c.block}</div>
+        <div class="manage-item-q">${c.question}</div>
+        <div class="manage-item-a">${c.answer}</div>
+      </div>
+      <div class="manage-item-actions">
+        <button class="card-action-btn" onclick="editCardById('${c.id}')" title="Editar">✎</button>
+        <button class="card-action-btn card-action-delete" onclick="deleteCardById('${c.id}')" title="Eliminar">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+window.editCardById = function(cardId) {
+  const card = state.cards.find(c => c.id === cardId);
+  if (card) openEditModal(card);
+};
+
+window.deleteCardById = async function(cardId) {
+  if (!confirm('¿Eliminar esta tarjeta?')) return;
+  await removeCard(cardId);
+  renderManageView();
+};
+
 
 // ── HELPERS ───────────────────────────────────────────────────
 function getToday()     { return new Date().toISOString().slice(0, 10); }

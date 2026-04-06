@@ -70,6 +70,10 @@
             <span class="nav-icon">⊕</span>
             <span>Generar</span>
           </button>
+          <button class="nav-btn" data-view="manage">
+            <span class="nav-icon">☰</span>
+            <span>Gestionar</span>
+          </button>
         </nav>
       </div>
       <div class="topbar-right">
@@ -103,6 +107,10 @@
       <button class="bnav-btn" data-view="generate">
         <span class="bnav-icon">⊕</span>
         <span>Generar</span>
+      </button>
+      <button class="bnav-btn" data-view="manage">
+        <span class="bnav-icon">☰</span>
+        <span>Gestionar</span>
       </button>
     </nav>
 
@@ -162,6 +170,11 @@
 
           <!-- Flashcard -->
           <div class="flashcard-wrap" id="flashcardWrap">
+            <!-- Action buttons -->
+            <div class="card-actions">
+              <button class="card-action-btn" onclick="editCurrentCard()" title="Editar tarjeta">✎</button>
+              <button class="card-action-btn card-action-delete" onclick="deleteCurrentCard()" title="Eliminar tarjeta">✕</button>
+            </div>
             <div class="flashcard" id="flashcard" onclick="flipCard()">
               <div class="card-face card-front">
                 <div class="card-block-tag mono" id="cardBlockTag">—</div>
@@ -262,6 +275,22 @@
         </div>
       </section>
 
+      <!-- ═══════════════════════════════════════════════
+           MANAGE
+      ════════════════════════════════════════════════ -->
+      <section class="view" id="view-manage">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Gestionar tarjetas</h1>
+            <p class="view-subtitle mono" id="manageCount">—</p>
+          </div>
+        </div>
+        <div class="study-filters" id="manageFilters">
+          <button class="filter-chip active" data-block="all">Todos</button>
+        </div>
+        <div class="manage-list" id="manageList"></div>
+      </section>
+
     </main>
 
   </div>
@@ -272,6 +301,25 @@
     <div class="user-menu-email mono" id="userMenuEmail">—</div>
     <hr class="menu-divider"/>
     <button onclick="signOut()" class="menu-item">Cerrar sesión</button>
+  </div>
+
+  <!-- EDIT MODAL -->
+  <div class="modal-overlay hidden" id="editModal" onclick="if(event.target===this)closeEditModal()">
+    <div class="modal">
+      <div class="modal-header mono">EDITAR TARJETA</div>
+      <div class="form-group">
+        <label class="form-label mono">Pregunta</label>
+        <textarea class="form-textarea" id="editQuestion" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label mono">Respuesta</label>
+        <textarea class="form-textarea" id="editAnswer" rows="3"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-primary" onclick="saveCardEdit()">Guardar</button>
+        <button class="btn-ghost" onclick="closeEditModal()">Cancelar</button>
+      </div>
+    </div>
   </div>
 
   <!-- TOAST -->
