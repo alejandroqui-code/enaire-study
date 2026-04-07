@@ -126,6 +126,7 @@ function switchView(name) {
   if (name === 'study')     initStudySession();
   if (name === 'dashboard') renderDashboard();
   if (name === 'manage')    renderManageView();
+  if (name === 'status')    renderStatusView();
 }
 
 // ── DASHBOARD ─────────────────────────────────────────────────
@@ -527,6 +528,61 @@ document.getElementById('btnDeleteCard').addEventListener('click', () => {
     showCurrentCard();
   });
 });
+
+// ── STATUS VIEW ───────────────────────────────────────────────
+function renderStatusView() {
+  const grid = document.getElementById('statusGrid');
+
+  if (Object.keys(state.blockStatus).length === 0) {
+    grid.innerHTML = `
+      <div class="status-empty">
+        <div class="empty-icon">◎</div>
+        <p>No hay datos de estado todavía.<br>Ejecuta el script de sync para cargar los state reports.</p>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = BLOCKS.map(blockName => {
+    const s = state.blockStatus[blockName];
+    if (!s) return `
+      <div class="status-card status-card--empty">
+        <div class="status-card-name">${blockName}</div>
+        <div class="status-no-data mono">Sin datos</div>
+      </div>`;
+
+    const strengths = (s.strengths || []).map(x =>
+      `<span class="status-tag status-tag--strength">${x}</span>`).join('');
+    const weaknesses = (s.weaknesses || []).map(x =>
+      `<span class="status-tag status-tag--weakness">${x}</span>`).join('');
+
+    const levelClass = { beginner: 'lvl-beginner', intermediate: 'lvl-intermediate', advanced: 'lvl-advanced' }[s.level] || '';
+    const levelLabel = { beginner: 'Inicial', intermediate: 'Intermedio', advanced: 'Avanzado' }[s.level] || s.level || '—';
+
+    return `
+      <div class="status-card">
+        <div class="status-card-header">
+          <span class="status-card-name">${blockName}</span>
+          <span class="status-level ${levelClass}">${levelLabel}</span>
+        </div>
+
+        ${s.profileSummary ? `<div class="status-profile-summary mono">${s.profileSummary}</div>` : ''}
+
+        ${(s.strengths?.length || s.weaknesses?.length) ? `
+        <div class="status-tags-section">
+          ${strengths ? `<div class="status-tags-row">${strengths}</div>` : ''}
+          ${weaknesses ? `<div class="status-tags-row">${weaknesses}</div>` : ''}
+        </div>` : ''}
+
+        <div class="status-card-footer">
+          ${s.nextFocus ? `<div class="status-next-focus">→ ${s.nextFocus}</div>` : ''}
+          <div class="status-meta mono">
+            ${s.lastSession ? `Última sesión: ${s.lastSession}` : ''}
+            ${s.totalSessions ? ` · ${s.totalSessions} sesiones` : ''}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
 
 // ── MANAGE VIEW ───────────────────────────────────────────────
 let manageActiveBlock = 'all';
