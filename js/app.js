@@ -123,10 +123,118 @@ function switchView(name) {
   });
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
+  if (name === 'today')     renderTodayView();
   if (name === 'study')     initStudySession();
   if (name === 'dashboard') renderDashboard();
   if (name === 'manage')    renderManageView();
   if (name === 'status')    renderStatusView();
+}
+
+// ── HOY ───────────────────────────────────────────────────────
+// 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
+const SCHEDULE = {
+  0: { blocks: [],                                      rest: true,  label: 'Descanso' },
+  1: { blocks: ['English Speaking', 'Psychotechnics'],  rest: false, label: 'Lunes' },
+  2: { blocks: ['English Precision', 'FEAST'],          rest: false, label: 'Martes' },
+  3: { blocks: [],                                      rest: true,  label: 'Miércoles' },
+  4: { blocks: ['English Speaking', 'Psychotechnics'],  rest: false, label: 'Jueves' },
+  5: { blocks: ['English Precision', 'FEAST'],          rest: false, label: 'Viernes' },
+  6: { blocks: ['English Speaking', 'Syllabus'],        rest: false, label: 'Sábado' }
+};
+
+function getTodaySchedule() {
+  const now = new Date();
+  const dow = now.getDay();
+  const entry = SCHEDULE[dow];
+
+  // Sunday: once a month (first Sunday) → Profile
+  if (dow === 0) {
+    const isFirstSunday = now.getDate() <= 7;
+    if (isFirstSunday) {
+      return { blocks: ['Profile'], rest: false, label: 'Domingo', profileSunday: true };
+    }
+  }
+  return { ...entry, profileSunday: false };
+}
+
+function renderTodayView() {
+  const today = getTodaySchedule();
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+
+  const headerEl  = document.getElementById('todayHeader');
+  const contentEl = document.getElementById('todayContent');
+
+  // Header
+  headerEl.innerHTML = `
+    <div class="today-date mono">${dateStr.toUpperCase()}</div>
+    ${today.rest
+      ? `<div class="today-day-label today-rest">DESCANSO</div>`
+      : `<div class="today-day-label">${today.label.toUpperCase()}</div>`
+    }`;
+
+  // Rest day
+  if (today.rest) {
+    contentEl.innerHTML = `
+      <div class="today-rest-card">
+        <div class="today-rest-icon">◎</div>
+        <div class="today-rest-title">Día de descanso</div>
+        <div class="today-rest-sub">El descanso forma parte del entrenamiento.<br>Vuelve mañana con energía.</div>
+      </div>`;
+    return;
+  }
+
+  // Study day — build block cards
+  const totalDue = today.blocks.reduce((acc, b) =>
+    acc + state.cards.filter(c => c.block === b && SRS.isDue(c)).length, 0);
+
+  contentEl.innerHTML = `
+    <div class="today-summary mono">
+      ${totalDue > 0
+        ? `<span class="today-due-count">${totalDue}</span> tarjetas pendientes hoy`
+        : `<span class="today-all-done">✓ Al día</span> — sin pendientes para hoy`
+      }
+    </div>
+    <div class="today-blocks">
+      ${today.blocks.map(blockName => {
+        const due  = state.cards.filter(c => c.block === blockName && SRS.isDue(c)).length;
+        const total = state.cards.filter(c => c.block === blockName).length;
+        const status = state.blockStatus[blockName] || {};
+        const pct  = SRS.masteryPercent(state.cards.filter(c => c.block === blockName));
+
+        return `
+          <div class="today-block-card">
+            <div class="today-block-top">
+              <span class="today-block-name">${blockName}</span>
+              ${due > 0
+                ? `<span class="today-block-due">${due} pendientes</span>`
+                : `<span class="today-block-done">Al día ✓</span>`
+              }
+            </div>
+
+            <div class="block-progress-bar" style="margin: .5rem 0">
+              <div class="block-progress-fill" style="width:${pct}%"></div>
+            </div>
+
+            ${status.profileSummary
+              ? `<div class="today-block-profile mono">${status.profileSummary}</div>`
+              : ''
+            }
+
+            ${status.nextFocus
+              ? `<div class="today-block-focus">→ ${status.nextFocus}</div>`
+              : ''
+            }
+
+            <div class="today-block-meta mono">${total} tarjetas · ${pct}% dominado</div>
+
+            <button class="today-study-btn" onclick="studyBlock('${blockName}')">
+              Estudiar ${blockName} →
+            </button>
+          </div>`;
+      }).join('')}
+    </div>
+    ${today.profileSunday ? `<div class="today-profile-note mono">◎ Primer domingo del mes — bloque Profile activo</div>` : ''}`;
 }
 
 // ── DASHBOARD ─────────────────────────────────────────────────
