@@ -52,6 +52,7 @@ onAuthChange(async (user) => {
     initStudySession();
     updateStats();
     updateDashDate();
+    renderTodayView();
   } else {
     state.user = null;
     document.getElementById('loginScreen').classList.remove('hidden');
@@ -353,7 +354,7 @@ function buildStudyQueue() {
 
 function showCurrentCard() {
   const { queue, currentIdx, reviewed } = state.study;
-  const total = queue.length + reviewed;
+  const total = queue.length;
   document.getElementById('studyProgress').style.width = total > 0 ? (reviewed / total) * 100 + '%' : '0%';
   document.getElementById('progressLabel').textContent = `${reviewed} / ${total}`;
   document.getElementById('flashcard').classList.remove('flipped');
