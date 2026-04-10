@@ -34,7 +34,8 @@ const state = {
     currentIdx: 0,
     isFlipped: false,
     reviewed: 0,
-    activeBlock: 'all'
+    activeBlock: 'all',
+    sessionTotal: 0 
   },
   generatedCards: []
 };
@@ -161,12 +162,14 @@ function getTodaySchedule() {
 function renderTodayView() {
   const today = getTodaySchedule();
   const now = new Date();
-  const dateStr = now.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+  const dateStr = now.toLocaleDateString('es-ES', {
+    weekday: 'long', day: 'numeric', month: 'long'
+  });
 
   const headerEl  = document.getElementById('todayHeader');
   const contentEl = document.getElementById('todayContent');
 
-  // Header
+  // Cabecera: fecha + etiqueta del día
   headerEl.innerHTML = `
     <div class="today-date mono">${dateStr.toUpperCase()}</div>
     ${today.rest
@@ -174,7 +177,7 @@ function renderTodayView() {
       : `<div class="today-day-label">${today.label.toUpperCase()}</div>`
     }`;
 
-  // Rest day
+  // Día de descanso
   if (today.rest) {
     contentEl.innerHTML = `
       <div class="today-rest-card">
@@ -185,57 +188,21 @@ function renderTodayView() {
     return;
   }
 
-  // Study day — build block cards
-  const totalDue = today.blocks.reduce((acc, b) =>
-    acc + state.cards.filter(c => c.block === b && SRS.isDue(c)).length, 0);
-
+  // Día de estudio: solo muestra los bloques del planning
   contentEl.innerHTML = `
     <div class="today-summary mono">
-      ${totalDue > 0
-        ? `<span class="today-due-count">${totalDue}</span> tarjetas pendientes hoy`
-        : `<span class="today-all-done">✓ Al día</span> — sin pendientes para hoy`
-      }
+      Bloques para hoy
     </div>
     <div class="today-blocks">
-      ${today.blocks.map(blockName => {
-        const due  = state.cards.filter(c => c.block === blockName && SRS.isDue(c)).length;
-        const total = state.cards.filter(c => c.block === blockName).length;
-        const status = state.blockStatus[blockName] || {};
-        const pct  = SRS.masteryPercent(state.cards.filter(c => c.block === blockName));
-
-        return `
-          <div class="today-block-card">
-            <div class="today-block-top">
-              <span class="today-block-name">${blockName}</span>
-              ${due > 0
-                ? `<span class="today-block-due">${due} pendientes</span>`
-                : `<span class="today-block-done">Al día ✓</span>`
-              }
-            </div>
-
-            <div class="block-progress-bar" style="margin: .5rem 0">
-              <div class="block-progress-fill" style="width:${pct}%"></div>
-            </div>
-
-            ${status.profileSummary
-              ? `<div class="today-block-profile mono">${status.profileSummary}</div>`
-              : ''
-            }
-
-            ${status.nextFocus
-              ? `<div class="today-block-focus">→ ${status.nextFocus}</div>`
-              : ''
-            }
-
-            <div class="today-block-meta mono">${total} tarjetas · ${pct}% dominado</div>
-
-            <button class="today-study-btn" onclick="studyBlock('${blockName}')">
-              Estudiar ${blockName} →
-            </button>
-          </div>`;
-      }).join('')}
+      ${today.blocks.map(blockName => `
+        <div class="today-block-card">
+          <div class="today-block-name">${blockName}</div>
+        </div>
+      `).join('')}
     </div>
-    ${today.profileSunday ? `<div class="today-profile-note mono">◎ Primer domingo del mes — bloque Profile activo</div>` : ''}`;
+    ${today.profileSunday
+      ? `<div class="today-profile-note mono">◎ Primer domingo del mes — bloque Profile activo</div>`
+      : ''}`;
 }
 
 // ── DASHBOARD ─────────────────────────────────────────────────
@@ -350,11 +317,12 @@ function buildStudyQueue() {
   let cards = state.cards.filter(c => SRS.isDue(c));
   if (state.study.activeBlock !== 'all') cards = cards.filter(c => c.block === state.study.activeBlock);
   state.study.queue = cards.sort(() => Math.random() - 0.5);
+  state.study.sessionTotal = state.study.queue.length;
 }
 
 function showCurrentCard() {
   const { queue, currentIdx, reviewed } = state.study;
-  const total = queue.length;
+  const total = state.study.sessionTotal;
   document.getElementById('studyProgress').style.width = total > 0 ? (reviewed / total) * 100 + '%' : '0%';
   document.getElementById('progressLabel').textContent = `${reviewed} / ${total}`;
   document.getElementById('flashcard').classList.remove('flipped');
