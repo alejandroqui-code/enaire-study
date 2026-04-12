@@ -236,20 +236,24 @@
         <!-- Rating buttons -->
         <div class="rating-row hidden" id="ratingRow">
           <button class="rate-btn rate-again" onclick="rateCard(0)">
-            <span class="rate-label">Otra vez</span>
-            <span class="rate-sub mono">&lt;1 min</span>
+            <span class="rate-icon">✕</span>
+            <span class="rate-label">Blackout</span>
+            <span class="rate-sub mono" id="rateSub0"></span>
           </button>
           <button class="rate-btn rate-hard" onclick="rateCard(1)">
-            <span class="rate-label">Difícil</span>
-            <span class="rate-sub mono">~1 día</span>
+            <span class="rate-icon">◐</span>
+            <span class="rate-label">Con esfuerzo</span>
+            <span class="rate-sub mono" id="rateSub1"></span>
           </button>
           <button class="rate-btn rate-good" onclick="rateCard(2)">
-            <span class="rate-label">Bien</span>
-            <span class="rate-sub mono">~3 días</span>
+            <span class="rate-icon">✓</span>
+            <span class="rate-label">Lo sé</span>
+            <span class="rate-sub mono" id="rateSub2"></span>
           </button>
           <button class="rate-btn rate-easy" onclick="rateCard(3)">
-            <span class="rate-label">Fácil</span>
-            <span class="rate-sub mono">~7 días</span>
+            <span class="rate-icon">⚡</span>
+            <span class="rate-label">Obvio</span>
+            <span class="rate-sub mono" id="rateSub3"></span>
           </button>
         </div>
 

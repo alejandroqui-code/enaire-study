@@ -353,6 +353,7 @@ function showCurrentCard() {
   document.getElementById('cardAnswer').textContent       = card.answer;
   document.getElementById('cardBlockTag').textContent     = card.block;
   document.getElementById('cardBlockTagBack').textContent = card.block;
+  updateRateSubLabels(card);
 }
 
 window.flipCard = function() {
@@ -511,6 +512,24 @@ function updateStats() {
 // ── HELPERS ───────────────────────────────────────────────────
 function getToday()     { return new Date().toISOString().slice(0, 10); }
 function getYesterday() { const d = new Date(); d.setDate(d.getDate()-1); return d.toISOString().slice(0,10); }
+
+function formatInterval(days) {
+  if (days <= 0) return '<1 día';
+  if (days === 1) return '1 día';
+  if (days < 30)  return `${days} días`;
+  if (days < 60)  return '~1 mes';
+  return `~${Math.round(days / 30)} meses`;
+}
+
+function updateRateSubLabels(card) {
+  [0, 1, 2, 3].forEach(rating => {
+    const el = document.getElementById('rateSub' + rating);
+    if (!el) return;
+    if (!card) { el.textContent = ''; return; }
+    const preview = SRS.nextInterval(card, rating);
+    el.textContent = formatInterval(preview.interval);
+  });
+}
 
 function showStatus(el, msg, type) {
   el.textContent = msg;

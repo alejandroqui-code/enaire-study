@@ -780,8 +780,9 @@ body {
 
 /* ── RATING BUTTONS ─────────────────────────────────────── */
 .rating-row {
+  /* Extremos (Blackout / Obvio) más estrechos que el centro */
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: 0.8fr 1.1fr 1.1fr 0.8fr;
   gap: 8px;
 }
 
@@ -789,41 +790,96 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 12px 8px;
+  gap: 4px;
+  padding: 14px 8px;
   border-radius: var(--radius);
   border: 1px solid var(--border);
   background: var(--surface);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.18s ease;
   font-family: var(--font-ui);
 }
 
+.rate-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
 .rate-label {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
   color: var(--text);
+  letter-spacing: 0.02em;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* Botones centrales con label ligeramente más grande */
+.rate-hard .rate-label,
+.rate-good .rate-label {
+  font-size: 13px;
 }
 
 .rate-sub {
   font-size: 10px;
   color: var(--muted2);
+  font-family: var(--font-mono);
 }
 
-.rate-again { border-color: rgba(255,95,95,0.25); }
-.rate-again:hover { background: rgba(255,95,95,0.12); border-color: rgba(255,95,95,0.5); transform: translateY(-2px); }
+/* Blackout — rojo sólido */
+.rate-again {
+  border-color: rgba(255,95,95,0.35);
+  background: rgba(255,95,95,0.06);
+}
+.rate-again:hover {
+  background: rgba(255,95,95,0.18);
+  border-color: rgba(255,95,95,0.7);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(255,95,95,0.2);
+}
+.rate-again .rate-icon  { color: var(--red); }
 .rate-again .rate-label { color: var(--red); }
 
-.rate-hard { border-color: rgba(247,201,72,0.25); }
-.rate-hard:hover { background: rgba(247,201,72,0.1); border-color: rgba(247,201,72,0.5); transform: translateY(-2px); }
-.rate-hard .rate-label { color: var(--yellow); }
+/* Con esfuerzo — naranja cálido */
+.rate-hard {
+  border-color: rgba(255,154,60,0.35);
+  background: rgba(255,154,60,0.06);
+}
+.rate-hard:hover {
+  background: rgba(255,154,60,0.16);
+  border-color: rgba(255,154,60,0.7);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(255,154,60,0.2);
+}
+.rate-hard .rate-icon  { color: var(--orange); }
+.rate-hard .rate-label { color: var(--orange); }
 
-.rate-good { border-color: rgba(79,172,254,0.25); }
-.rate-good:hover { background: rgba(79,172,254,0.1); border-color: rgba(79,172,254,0.5); transform: translateY(-2px); }
+/* Lo sé — azul acento */
+.rate-good {
+  border-color: rgba(79,172,254,0.35);
+  background: rgba(79,172,254,0.06);
+}
+.rate-good:hover {
+  background: rgba(79,172,254,0.16);
+  border-color: rgba(79,172,254,0.7);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(79,172,254,0.2);
+}
+.rate-good .rate-icon  { color: var(--accent); }
 .rate-good .rate-label { color: var(--accent); }
 
-.rate-easy { border-color: rgba(57,217,138,0.25); }
-.rate-easy:hover { background: rgba(57,217,138,0.1); border-color: rgba(57,217,138,0.5); transform: translateY(-2px); }
+/* Obvio — verde brillante */
+.rate-easy {
+  border-color: rgba(57,217,138,0.35);
+  background: rgba(57,217,138,0.06);
+}
+.rate-easy:hover {
+  background: rgba(57,217,138,0.16);
+  border-color: rgba(57,217,138,0.7);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(57,217,138,0.2);
+}
+.rate-easy .rate-icon  { color: var(--green); }
 .rate-easy .rate-label { color: var(--green); }
 
 /* ══════════════════════════════════════════════════════════
